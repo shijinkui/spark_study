@@ -9,6 +9,6 @@
 
 ##		目录
 
-1.	[Graphx:构建graph和聚合消息](spark_graphx_analyze)
+1.	[Graphx:构建graph和聚合消息](spark_graphx_analyze.markdown)
 
 
