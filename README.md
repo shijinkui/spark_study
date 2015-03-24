@@ -12,3 +12,9 @@
 1.	[Graphx:构建graph和聚合消息](spark_graphx_analyze.markdown)
 
 
+
+##		Spark八法
+从八个方面分析spark
+
+1.	[概要](spark_eight_style.markdown)
+2.	[spark八法之方圆:RDD](spark_eight_style_rdd.markdown)
