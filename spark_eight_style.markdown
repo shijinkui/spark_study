@@ -25,3 +25,18 @@
 6.	速战	Streaming
 7.	用谋	MLLib	
 8.	棋弈	Graphx
+
+###	组织结构
+------
+每个章节尽量按照: 
+
+*	综述overview
+*	特点feature
+*	结构structure
+*	细节detail
+*	关系relation
+*	总结summary
+
+
+
+
