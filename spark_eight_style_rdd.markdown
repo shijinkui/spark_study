@@ -1,25 +1,41 @@
 #	spark八法之方圆:RDD
 
-@时金魁(花名玄畅)   2015.3
-
 ##	Overview
 
 方圆: 数据为阳，算子为阴；算子为方，数据为圆。阴阳应象，天人合一，再不可分。
 
-RDD(Resilient Distributed Datasets)弹性分布式数据集, spark的核心理念, 对数据及其操作抽象表达。
+单机上对数据的转换操作，绝大部分变成语言都能完成。随着数据量变大，单机放不下数据并且单机计算能力有限，这就需要做把单机上干的事情平行分布到对等节点上去做，这就是分布式计算的概念。现在分布式计算框架很多，常见的有：Spark, Hadoop(MR), Pregel, Storm, Dryad, Scope, h2o等等。
 
-Spark整体上略说可以分为两部分:RDD和运行时框架, RDD表达一种运行时数据分片分布、依赖关系、计算的接口规格以及进入Spark运行时框架执行运算的入口。
+近两年比较突出的是Spark, 其基于RDD概念的设计让人耳目一新。下面就看下RDD的设计和实现。
 
-RDD规格标准：
+RDD(Resilient Distributed Datasets)弹性分布式数据集, spark的核心理念, 对数据及其操作抽象表达。RDD定义在一个数据集上应用一个函数，整个过程分布式并行执行。
 
-1. **Spark运行期框架支持入口**    
-	调用包含*runJob()*的函数, 开始执行任务。    
-	运行期执行过程框架主要由SparkContext, DAGScheduler, TaskScheduler, CoarseGrainedSchedulerBackend, CoarseGrainedExecutorBackend, Executor提供框架支持
-2. **partition**
-3. **compute**
-4. **dependency**
-5. **transform: 算子**     
-6. **其他: 惰性计算**    
+分布式计算首先是需要分布式数据, 在分布式数据上应用计算函数。弹性的数据在中间数据丢失时不唯一依赖数据冗余备份，主要根据原始数据重新计算出所在阶段的数据。原始数据可以通过HDFS来保证不丢失。
+
+###	RDD的特点
+
+1. **分区partitions**
+2. **RDD之间的依赖dependencies**
+3. **计算函数(算子): 应用在所有分区上**
+4. **可选的分区器Partitioner**     
+5. **可选的优先位置preferred locations**
+
+这些RDD特性作为最基础的特性被spark框架实现分布式计算，RDD有不同的子类实现不同的计算过程，如: HadoopRDD, JdbcRDD, BlockRDD, EdgeRDD等。
+
+我们要做大数据计算，主要关心3件事情：1. 数据; 2. 函数; 3. 实现2
+数据怎么加载, 计算结果如何保存; 函数就是如同在单机上对数据做的操作。具体实现就是把1、2定义好, 提交给spark去干活。
+
+###	RDD的抽象概念
+
+一个RDD定义了对数据的一个操作过程，一个用户提交的计算任务可以由多个RDD构成。多个RDD可以是对单个/多个数据的多个操作过程。多个RDD之间的关系使用依赖来表达。操作过程就是用户自定义的函数。
+
+整个数据处理过程需要用户先用RDD和函数画一个计划草图，spark框架拿到这个草图去分布式执行延迟计算过程，然后把结果呈现给用户。而在画草图时，并没有即时计算。
+    
+###	Spark运行期执行入口  
+ 
+*	调用包含*runJob()*的函数, 开始执行任务。    
+*	运行期执行过程框架主要由SparkContext, DAGScheduler, TaskScheduler, CoarseGrainedSchedulerBackend, CoarseGrainedExecutorBackend, Executor提供框架支持
+
 	
 图1: RDD概要图      
 ![overview](img/spark_8_overview.jpg)
@@ -32,28 +48,11 @@ RDD(弹性分布式数据集)去掉形容词，主体为：数据集。如果认
 
 下面就细说RDD具体规格。
 
-##	Spark运行期框架支持入口
-一个RDD被运算离不开框架的支持。SparkContext会初始化运行时各个组件，封装和提交RDD计算任务, 相关函数为：
-    
-函数名字 | 描述
------------ | -----------
-sc.clean()		|	清理算子中的闭包函数中的未引用到的变量及其他, 以便持久化
-sc.persistRDD	|	注册持久化事件: 持久化当前RDD到存储系统中(内存或磁盘)
-sc.unpersistRDD	 |	注册反持久化事件: 销毁当前RDD在存储系统的持久化副本
-new RDD(rc, ...) | 构建新的RDD对象所需的参数
-sc.runJob() | **开始提交运算任务, 入口**
-sc.runApproximateJob() | **开始提交返回近似结果的任务, 入口**
 
-`sc.runJob`和`sc.runApproximateJob`是提交运算任务的入口。往下就是DAG, Scheduler, Executor的菜了。
-
-如下图所示：RDD及其依赖RDD被层层包装加工、分发、调度执行, partiton对应的实体数据应用到算子里制定的计算函数; 然后再原路返回, 这样RDD中每个partition对应一个计算结果, reduce这些结果为终极结果, application中直接得到这个最终运算结果。
-
-图2: Spark运行时框架与RDD关系图       
-![](img/saprk_8_framework.jpg)
 
 ##		**partition: 分区**
 
-RDD, 名为弹性数据集, 大数据讲的是一个大字, 数据太大必然要切分为一个个partition分片, 这些partition分布在不同机器上。
+RDD, 名为弹性数据集, 大数据焦点问题是一个大字, 数据太大那就切分为一个个partition分片, 这些partition分布在不同机器上。
 
 怎么切分是`Partitioner`定义的, `Partitioner`有两个接口: `numPartitions`分区数, `getPartition(key: Any): Int`根据传入的参数确定分区号。实现了Partitioner的有：    
 1. HashPartitioner
@@ -69,12 +68,6 @@ RDD, 名为弹性数据集, 大数据讲的是一个大字, 数据太大必然�
 ![](img/saprk_8_1_dep_data.jpg)       
 
 用户的写的app代码中, 算子顺序调用, 最后一个算子的最后面的RDD, 持有这个RDD就可以向上追溯到源数据, 回来再一步步执行RDD的transform partition得到各个Partition的数据, 最终得到末尾的RDD数据。
-
-
-##		**compute: 计算**
-`def compute(split: Partition, context: TaskContext): Iterator[T]`
-接口定义上看：就是计算分区, 返回数据集合。具体怎么个计算方法, 需要具体的RDD子类去定义。
-
 
 ##	**Dependency: 依赖**
 
@@ -101,7 +94,7 @@ NarrowDependency让数据从父RDD到子RDD数据条数减少, 最多保持相�
 
 依赖关系表示RDD之间的对应关系, 多个RDD之间链式调用算子, 最后的关系图为由内到外随着算子调用增多, 层级逐步向外扩展。即: 最外层的RDD能根据与父RDD的依赖关系逐层递进一直找到原点RDD(没有父RDD)。这样, 中间某个RDD的数据分区丢失数据, 就可以根据依赖关系溯源向上重新计算出数据。这就是所谓的弹性。
 
-##		transform: 算子
+##		算子: 计算函数
 
 >	狭义的算子是: 如同普通的运算符号作用于数后可以得到新的数那样，一个算子作用于一个函数后可以根据一定的规则生成一个新的函数。(来源于[百科](http://baike.baidu.com/view/53313.htm))
 
@@ -174,8 +167,15 @@ take|num:Int|对应于scala的take函数, 选择第num个值
 这两个函数都是数据映射的定义，真正开始执行是右包含`runJob()`函数的action算子启动。
 
 
-##		其他: 惰性计算
 
+##		lazy: 惰性计算
+
+上面定义好了计算函数，问题就来了，一般理解我写好了应用在数据上的函数，这个函数不是应该马上执行么？
+大致来说计算过程分为：即时计算和惰性计算。
+即时计算就是马上计算，就像 `1 + 1`这个`+`运算，系统遇到这个`+`会马上对符号左右的数进行求值运算。
+而惰性计算就是，等一下，等我把整个任务分布到各个机器，启动任务，加载完这个partition对应的数据，你再计算。
+
+这就是spark巧妙的地方。利用scala的惰性计算实现分布式计算。 
 
 以比较简单ResultTask为例子: 
 
@@ -199,6 +199,25 @@ take|num:Int|对应于scala的take函数, 选择第num个值
 `=>`这种形式的高阶函数作为参数，在函数被实际调用的时候才去求值, 这就是所谓的惰性计算。
 
 高阶函数见: [scala Higher-order Function](http://docs.scala-lang.org/tutorials/tour/higher-order-functions.html)
+ 
+##	Spark运行期框架支持入口
+一个RDD被运算离不开框架的支持。SparkContext会初始化运行时各个组件，封装和提交RDD计算任务, 相关函数为：
+    
+函数名字 | 描述
+----------- | -----------
+sc.clean()		|	清理算子中的闭包函数中的未引用到的变量及其他, 以便持久化
+sc.persistRDD	|	注册持久化事件: 持久化当前RDD到存储系统中(内存或磁盘)
+sc.unpersistRDD	 |	注册反持久化事件: 销毁当前RDD在存储系统的持久化副本
+new RDD(rc, ...) | 构建新的RDD对象所需的参数
+sc.runJob() | **开始提交运算任务, 入口**
+sc.runApproximateJob() | **开始提交返回近似结果的任务, 入口**
+
+`sc.runJob`和`sc.runApproximateJob`是提交运算任务的入口。往下就是DAG, Scheduler, Executor的菜了。
+
+如下图所示：RDD及其依赖RDD被层层包装加工、分发、调度执行, partiton对应的实体数据应用到算子里制定的计算函数; 然后再原路返回, 这样RDD中每个partition对应一个计算结果, reduce这些结果为终极结果, application中直接得到这个最终运算结果。
+
+图2: Spark运行时框架与RDD关系图       
+![](img/saprk_8_framework.jpg) 
  
 ##		总结
 
