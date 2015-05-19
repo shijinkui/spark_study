@@ -23,4 +23,4 @@
 
 1.	[概要](spark_eight_style.markdown)
 2.	[Spark八法之方圆: RDD](spark_eight_style_1_rdd)
-3.	[Spark八法之不攻: DAG、Lazy](spark_eight_style_2_dag_lazy)
+3.	[Spark八法之不攻: DAG、Lazy](spark_eight_style_2_dag_lazy) 进行中
