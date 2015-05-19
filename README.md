@@ -22,5 +22,6 @@
 从八个方面分析spark, 观脉络看细节。
 
 1.	[概要](spark_eight_style.markdown)
-2.	[Spark八法之方圆: RDD](spark_eight_style_1_rdd)
-3.	[Spark八法之不攻: DAG、Lazy](spark_eight_style_2_dag_lazy) 进行中
+2.	[Spark八法之方圆: RDD](spark_eight_style_1_rdd.markdown)
+3.	[Spark八法之不攻: DAG、Lazy](spark_eight_style_2_dag_lazy.markdown) 进行中
+
