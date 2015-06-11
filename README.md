@@ -26,3 +26,8 @@
 2.	[Spark八法之方圆: RDD](spark_eight_style_1_rdd.markdown)
 3.	[Spark八法之不攻: DAG、Lazy](spark_eight_style_2_dag_lazy.markdown) 进行中
 
+
+
+------------------
+
+微博: @时金魁
