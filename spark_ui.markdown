@@ -32,13 +32,13 @@ Master继承自`Actor`, 成员变量初始化`private val webUi = new MasterWebU
 MasterWebUI在初始化的时候(initialize), 初始化Master UI的web组件:  `ContextHandler`，具体的为: 
 
 Component | path | Description
------------- | -------------
+------------ | ------------- | -------------
 MasterPage | / | 渲染workers, 活跃的appliction, 活跃的drivers
 ApplicationPage | /app | 根据request中的appId参数, 展示这个活跃的application
 HistoryNotFoundPage | /history/not-found | 历史信息找不到404
 static handler | 加载静态资源, 见这里:`resources/org/apache/spark/ui/static/`
 ApiRootResource handler| -
-redirect handler| /app/kill, /driver/kill |把这俩kill请求转发给master page处理, Master异步kill
+redirect handler| /app/kill, /driver/kill | 把这俩kill请求转发给master page处理, Master异步kill
 
 `WebUIPage`继承自`WebUI`, `WebUI`有两个抽象函数`render(request: HttpServletRequest): Seq[Node]`和`renderJson(request: HttpServletRequest): JValue`。需要注意的是成员参数`prefix`, 这个就是这个页面对应的http path了。
 
