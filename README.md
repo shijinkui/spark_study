@@ -1,16 +1,15 @@
 #		Spark Study
 ----------------
 
-
 通过spark源码阅读，把spark内部运行逻辑用`图表+文字说明`的形式展现出来。
 图表能够清晰表达全局的逻辑关系和细节部分
-
 
 ##		目录
 
 1.	[Graphx:构建graph和聚合消息](spark_graphx_analyze.markdown)
 2.	[从SparkPi图解Spark core](spark_core_getstart_from_pi.markdown) (hangzhou spark meetup分享过一次)
 3.	[spark UI源码阅读](spark_ui.markdown) *2015.6.11*
+4.	[食不厌精，脍不厌细：如何一步步将kcore算法提升5倍性能](spark_core_getstart_from_pi.markdown) *2014.12.27*
 
 
 ##		Spark八法
