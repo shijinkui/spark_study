@@ -31,7 +31,7 @@ spark repl鲜有人说，大概因为repl是非必需品，在生产和调试spa
 ###	full graph
 ----------
 
-![](img/spark_repl_shijinkui_20160112/spark_repl.jpg)
+![](img/spark_repl/spark_repl.jpg)
 
 ###	entrance
 ----------
@@ -60,7 +60,7 @@ exec "${SPARK_HOME}"/bin/spark-class org.apache.spark.deploy.SparkSubmit "$@"
 
 经过前面的spark运行环境准备工作，后面进入到`org.apache.spark.repl.Main.main()`, 这个Main对象就是repl的入口了。
 
-![](img/spark_repl_shijinkui_20160112/1_entrance.jpg)
+![](img/spark_repl/1_entrance.jpg)
 
 
 ###	repl
@@ -135,7 +135,7 @@ SparkILoop对象有两个关键的成员变量:
 	规范见[这里](http://cnswww.cns.cwru.edu/php/chet/readline/readline.html#SEC9)
 	
 	*2.1 创建解释器:*    
-	![](img/spark_repl_shijinkui_20160112/2_1_create_intp.jpg)
+	![](img/spark_repl/2_1_create_intp.jpg)
 	
 2. 创建控制台输入reader
 
@@ -147,7 +147,7 @@ SparkILoop对象有两个关键的成员变量:
 	reader对象生成后, 赋值给`SparkILoop`的变量`in`, 后续读取输入。
 	
 	*2.2 选择reader:*    
-	![](img/spark_repl_shijinkui_20160112/2_2_chose_reader.jpg)
+	![](img/spark_repl/2_2_chose_reader.jpg)
 
 3. 添加bind绑定到执行列表
 	
@@ -174,7 +174,7 @@ SparkILoop对象有两个关键的成员变量:
 	这样，直接调用生成object对象`${bindRep.evalName}`的value属性就可以用`SparkIMain`了。
 	
 	*2.3 绑定*    
-	![](img/spark_repl_shijinkui_20160112/2_3_bind.jpg)
+	![](img/spark_repl/2_3_bind.jpg)
 
 4. 添加repl自动执行代码到执行列表
 	
@@ -196,7 +196,7 @@ SparkILoop对象有两个关键的成员变量:
 	
 6. 添加初始化spark环境函数到执行列表
 	
-	编译执行以下代码块:
+	初始化spark环境initializeSpark，编译执行以下代码块:
 	
 	```
 	//	1. command
@@ -266,9 +266,17 @@ SparkILoop对象有两个关键的成员变量:
 		这里的Method是把line source code放到一个函数中, 生成一个class, 然后调用执行。
 		
 	*2.9 repl*    
-	![](img/spark_repl_shijinkui_20160112/2_8_loop_rep.jpg)
+	![](img/spark_repl/2_8_loop_rep.jpg)
 
+###		summary
 --------------
+从SparkSubmit起，初始化解释器，执行代码: 绑定、自动执行代码、输出欢迎、初始化spark环境，进入loop状态:read-eval-print。
+
+如果想让repl的过程有更多的自定义交互操作，可以提交SparkSubmit一个自定义的类，做一个中间代理，包装一下`SparkILoop`。弊端就是要兼容spark各个版本的代码。
+
+后续会分析hue livy和spark notebook怎么与spark交互。
+
+![](img/spark_repl/3_summary.jpg)
 
 *转载请注明原作者*
 
