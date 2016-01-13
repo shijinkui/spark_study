@@ -10,7 +10,7 @@
 2.	[从SparkPi图解Spark core](spark_core_getstart_from_pi.markdown) (hangzhou spark meetup分享过一次)
 3.	[spark UI源码阅读](spark_ui.markdown) *2015.6.11*
 4.	[食不厌精，脍不厌细：如何一步步将kcore算法提升5倍性能](spark_core_getstart_from_pi.markdown) *2014.12.27*
-
+5.	[图解spark repl](spark_repl.markdown) *2016.1.12*
 
 ##		Spark八法
 @玄畅    @明风
