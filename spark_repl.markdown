@@ -5,13 +5,12 @@
 
 ###	overview
 ----------
-repl: `Read! Eval! Print! Loop..`, 顾名思义就是, 读取输入, 求值, 打印.
+repl: `Read! Eval! Print! Loop..`, 顾名思义就是: 读取输入-求值-打印，无限循环上述过程。
 
-[jline2](https://github.com/jline/jline2)是一个java实现的repl, 有个[exaple](https://github.com/jline/jline2/blob/master/src/test/java/jline/example/Example.java)，可以感受下是repl怎么回事。
+[jline2](https://github.com/jline/jline2)是一个java实现的repl, 有个[example](https://github.com/jline/jline2/blob/master/src/test/java/jline/example/Example.java)，可以感受下是repl怎么回事。
 
 
-spark repl鲜有人说，大概因为repl是非必需品，在生产和调试spark时几乎用不到repl。在刚接触spark时，跑一下 [Spark Examples
-](http://spark.apache.org/examples.html)时, 一般会直接在`spark-shell`里跑一下样例。
+spark repl鲜有人说，大概因为repl是非必需品，在生产和调试spark时几乎用不到repl。在刚接触spark时，跑一下 [Spark Examples](http://spark.apache.org/examples.html)时, 一般会直接在`spark-shell`里跑一下样例。
 
 下文就是从`spark-shell`入口剖析下spark repl的运行路径。
 
